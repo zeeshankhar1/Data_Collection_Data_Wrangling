@@ -1,6 +1,6 @@
 ---
 title: "Data Collection and Data Wrangling"
-author: "Sana Rasheed"
+author: "Zeeshan Khar"
 date: "July 19, 2020"
 output: html_document
 ---
