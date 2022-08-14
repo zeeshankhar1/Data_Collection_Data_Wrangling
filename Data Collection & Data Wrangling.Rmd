@@ -1,28 +1,28 @@
 ---
 title: "Data Collection and Data Wrangling"
 author: "Zeeshan Khar"
-date: "July 19, 2020"
+date: "August 14, 2022"
 output: html_document
 ---
 
-##### NOTE: 
-1. Change author name and date to your exercise submission date in above section
-2. Your code MUST execute without errors. 
-3. You can add more lines in your code as required.
+##### NOTE:
+
+1.  Change author name and date to your exercise submission date in above section
+2.  Your code MUST execute without errors.
+3.  You can add more lines in your code as required.
 
 ## Section 1: Manipulating Data
 
-### Question 1 
-**The dataset is loaded for you. Perform the following tasks:**  
-1. use the USPersonalExpenditure dataset and store in a variable.  
-2. Compute summary statistics: mean, standard deviation (sd) across time for each of the indicators.  
-3. Create a new column that contains average values for each of the indicators.  
+### Question 1
 
+**The dataset is loaded for you. Perform the following tasks:**\
+1. use the USPersonalExpenditure dataset and store in a variable.\
+2. Compute summary statistics: mean, standard deviation (sd) across time for each of the indicators.\
+3. Create a new column that contains average values for each of the indicators.
 
 ```{r }
 library(help='datasets')
 ```
-
 
 ```{r }
 USPersonalExpenditure
@@ -32,64 +32,92 @@ USPersonalExpenditure
 ### start solution ####
 ```
 
-
 ```{r }
+USPersonalExpenditure
+mean_ <- apply(USPersonalExpenditure,1,mean)
+mean_
+
 
 ```
 
-
 ```{r }
+sd_ <- apply(USPersonalExpenditure,1,sd)
+sd_
+
+
 
 ```
 
-
 ```{r }
+cbind(USPersonalExpenditure,NewColumn = mean_)
 
 ```
-
 
 ```{r }
 ### end solution ####
 ```
 
-### Question 2 
-**download the data from the available URL:**  
-1. Create a new column containing the average bodywt (body weight) of each genus and of each order.  
-2. Create a dataframe containing the average REM sleep time for each order.  
-3. How many missing values are there (in total) and per column?  
-4. How would you like to impute missing values? Write Justification.  <i> Hint: Overall Mean/media/mode vs. Groupby Mean/media/mode?
+### Question 2
 
+**download the data from the available URL:**\
+1. Create a new column containing the average bodywt (body weight) of each genus and of each order.\
+2. Create a dataframe containing the average REM sleep time for each order.\
+3. How many missing values are there (in total) and per column?\
+4. How would you like to impute missing values? Write Justification. <i> Hint: Overall Mean/media/mode vs. Groupby Mean/media/mode?
 
 ```{r }
 url <- "https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/msleep_ggplot2.csv"
 filename <- "msleep_ggplot2.csv"
-```
 
+
+```
 
 ```{r }
 ### start solution ####
 ```
 
-
 ```{r }
+if (!file.exists("msleep_ggplot2.csv")) download.file(url,filename)
+#install.packages("data.table")
+library(data.table)
+a <- fread(filename )
+
+   #1. Create a new column containing the average bodywt (body weight) of each genus and of each order.
+
+a1<- a # duplicate the table
+ mean_genus<- a1$MeanGenus <- ave(a1$bodywt,a1$genus)  #use just the AVE function 
+mean_order<- a1$MeanOrder <- ave(a1$bodywt,a1$order)  #use just the AVE function 
+
+head(a1)
+
 
 ```
 
-
 ```{r }
+
+#2. Create a dataframe containing the average REM sleep time for each order.
+b1<- ave(a1$sleep_rem,a1$order, FUN = function(x) mean(x, na.rm = TRUE) )
+
+b2<- cbind(Order=a1$order,average=b1)
+head(b2)
 
 ```
 
-
 ```{r }
+# 3. How many missing values are there (in total) and per column?\
+sum(is.na(a))
+
+apply(a, 2, FUN = function (x) sum(is.na(x)))
+                # OR
+colSums(is.na(a))
 
 ```
-
-
 ```{r }
+# 4. How would you like to impute missing values? Write Justification. <i> Hint: Overall Mean/media/mode vs. Groupby Mean/media/mode?    
+# create a adataframe
 
+# Answer: I will prefer to impute the dataset with the mean of columns. >>>Imputing the missing valued means to replace the NA values of data-set or data frame or columns with mean, median, mode, min or max. And imputing the Na depends upon the nature of data of column. e.g In most data sets, there might be missing values either because it wasn’t entered or due to some error. Replacing these missing values with another value is known as Data Imputation. There are several ways of imputation. Common ones include replacing with average, minimum, or maximum value in that column/feature. Different data-sets and features will require one type of imputation method. For example, considering a data-set of sales performance of a company, if the feature loss has missing values then it would be more logical to replace a minimum value.
 ```
-
 
 ```{r }
 ### end solution ###
@@ -100,45 +128,54 @@ filename <- "msleep_ggplot2.csv"
 ## Section 2: Tidyverse
 
 ### Question 1
-**Use the above dataset and perform the following tasks using any library from tidyverse:**  
-1. Filter results to print average REM sleep and average total sleep  for those animals who are carnivores and then for those who are primates.  
-2. Use the order column and "spread" it across the rest of the observations.  
 
+**Use the above dataset and perform the following tasks using any library from tidyverse:**\
+1. Filter results to print average REM sleep and average total sleep for those animals who are carnivores and then for those who are primates.\
+2. Use the order column and "spread" it across the rest of the observations.
 
 ```{r }
 ### start solution ####
 ```
 
+```{r }
+#install.packages("tidyverse")
+library(tidyverse)
+
+```
+
+```{r }
+library(dplyr) # import this library for using the pipe operator
+library(data.table)
+
+
+##1. Filter results to print average REM sleep and average total sleep for those animals who are carnivores and then for those who are primates.\
+
+x1<- fread("msleep_ggplot2.csv")
+names(x1)
+x1
+sss<- x1 %>%  select(order,sleep_rem,sleep_total) %>% filter(order == "Carnivora")
+mean(sss$sleep_rem,na.rm = T)
+mean(sss$sleep_total,na.rm = T)
+
+
+##2. Use the order column and "spread" it acrossl the rest of the observations.
+
+
+
+
+```
 
 ```{r }
 
 ```
 
-
 ```{r }
 
 ```
 
-
 ```{r }
 
 ```
-
-
-```{r }
-
-```
-
-
-```{r }
-
-```
-
-
-```{r }
-
-```
-
 
 ```{r }
 ### end solution ####
